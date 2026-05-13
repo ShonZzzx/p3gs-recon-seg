@@ -15,6 +15,22 @@ conda activate plant3dgs
 ```
 
 
+## 项目结构
+
+本项目按“数据、重建、分割、表型提取”四个任务模块组织文件。空目录通过 `.gitkeep` 保留，便于多人协作时保持统一目录结构。
+
+```text
+```text
+p3gs-recon-seg/
+├── README.md              # 项目说明文档
+├── environment.yaml       # Conda 环境配置文件
+├── data/                  # 数据集、预处理结果与中间数据
+├── reconstruction/        # 三维重建相关代码与实验配置
+├── segmentation/          # 叶片语义分割与实例分割相关代码
+└── phenotyping/           # 表型参数提取相关代码
+```
+
+
 ## 复现方法
 
 本项目复现并对比以下方法。
