@@ -163,3 +163,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Data Source
+data/dataGS/
