@@ -17,7 +17,7 @@ def run_command(command, description="正在执行任务"):
     if process.returncode != 0:
         print(f"错误: {description} 失败，退出码: {process.returncode}")
         sys.exit(1)
-    print(f"{description} 完成！")
+    print(f"{description}完成！")
 
 def preprocess_scene(plant_path):
     """
@@ -48,11 +48,11 @@ def preprocess_scene(plant_path):
         f"--database_path {colmap_db} "
         f"--image_path {images_dir}"
     )
-    run_command(extract_cmd, "步骤 1/4: 提取图像特征点")
+    run_command(extract_cmd, "步骤 1/5: 提取图像特征点 (标准模式)")
 
-    # 步骤二：穷举匹配（ps：这里用顺序匹配也可以，因为images文件夹中的图片是顺序拍摄的，使用顺序匹配可以节省运行内存并且减少匹配时间）
+    # 步骤二：穷举匹配
     match_cmd = f"colmap exhaustive_matcher --database_path {colmap_db}"
-    run_command(match_cmd, "步骤 2/4: 进行特征点匹配")
+    run_command(match_cmd, "步骤 2/5: 进行特征点匹配 (标准模式)")
 
     # 步骤三：稀疏重建
     mapper_cmd = (
@@ -61,7 +61,7 @@ def preprocess_scene(plant_path):
         f"--image_path {images_dir} "
         f"--output_path {sparse_dir}"
     )
-    run_command(mapper_cmd, "步骤 3/4: 三维稀疏重建")
+    run_command(mapper_cmd, "步骤 3/5: 三维稀疏重建 (标准模式)")
 
     # 步骤四：整理目录结构归类到 sparse/0
     generated_model_dir = os.path.join(sparse_dir, "0")
@@ -72,11 +72,21 @@ def preprocess_scene(plant_path):
             if os.path.exists(src):
                 shutil.move(src, dst)
 
-    # 步骤五：清理临时数据库文件
+    # 步骤五：去畸变，覆盖畸变位姿文件
+    undistort_cmd = (
+        f"colmap image_undistorter "
+        f"--image_path {images_dir} "
+        f"--input_path {output_model_dir} "
+        f"--output_path {output_model_dir} "
+        f"--output_type COLMAP"
+    )
+    run_command(undistort_cmd, "步骤 5/5: 强行去畸变并输出到位姿目的地")
+
+    # 清理临时数据库文件
     if os.path.exists(colmap_db):
         os.remove(colmap_db)
 
-    print(f"\n预处理完成！标准3DGS格式已存入: {output_model_dir}\n")
+    print(f"\n预处理搞定！标准3DGS格式已存入: {output_model_dir}\n")
 
 if __name__ == "__main__":
     # 输入路径
