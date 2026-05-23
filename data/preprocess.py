@@ -72,7 +72,7 @@ def preprocess_scene(plant_path):
             if os.path.exists(src):
                 shutil.move(src, dst)
 
-    # 步骤五：去畸变，覆盖畸变位姿文件
+    # 步骤五：去畸变
     undistort_cmd = (
         f"colmap image_undistorter "
         f"--image_path {images_dir} "
@@ -80,16 +80,29 @@ def preprocess_scene(plant_path):
         f"--output_path {output_model_dir} "
         f"--output_type COLMAP"
     )
-    run_command(undistort_cmd, "步骤 5/5: 强行去畸变并输出到位姿目的地")
+    run_command(undistort_cmd, "步骤 5/5: 去畸变并输出到位姿目的地")
+
+    # 把藏在里面的去畸变图像整体平移出来，放到与原始 images 同级的目录下
+    hidden_images_dir = os.path.join(output_model_dir, "images")
+    final_undistorted_dir = os.path.join(plant_path, "images_undistorted")
+    
+    if os.path.exists(hidden_images_dir):
+        print("\n正在将去畸变后的图像提取至植物根目录...")
+        if os.path.exists(final_undistorted_dir):
+            shutil.rmtree(final_undistorted_dir)
+        # 用最安全的剪切操作把文件夹一把薅出来
+        shutil.move(hidden_images_dir, final_undistorted_dir)
 
     # 清理临时数据库文件
     if os.path.exists(colmap_db):
         os.remove(colmap_db)
 
-    print(f"\n预处理搞定！标准3DGS格式已存入: {output_model_dir}\n")
+    print(f"\n预处理搞定！")
+    print(f"标准位姿文件已存入: {output_model_dir}")
+    print(f"去畸变图像已存入: {final_undistorted_dir}\n")
 
 if __name__ == "__main__":
-    # 输入路径
+    # 自行输入路径
     user_input = input("请输入植物场景文件夹的路径 (例如 datasets/plant_003): ").strip()
     
     if user_input:
