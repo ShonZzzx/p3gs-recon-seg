@@ -79,7 +79,7 @@ def preprocess_scene(plant_path):
     print(f"\n预处理完成！标准3DGS格式已存入: {output_model_dir}\n")
 
 if __name__ == "__main__":
-    # 让使用者在运行代码后自行输入路径
+    # 输入路径
     user_input = input("请输入植物场景文件夹的路径 (例如 datasets/plant_003): ").strip()
     
     if user_input:
