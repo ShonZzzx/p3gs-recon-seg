@@ -1,81 +1,81 @@
-# 数据目录
+﻿# 数据目录
 
-本目录用于统一管理项目数据、预处理结果和中间文件。
+本目录是整个项目共享的本地数据根目录。它放在项目根目录下，而不是放进 `reconstruction/`、`segmentation/` 或 `phenotyping/`，因为三条流程都会复用同一批植物图像、COLMAP 相机文件、重建点云和人工标注。
 
-## 数据集dataGS
-本数据集包含26种不同种类的植物多视角照片及COLMAP预处理结果，专门用于3D Gaussian Splatting (3DGS) 以及相关改进方法的等三维重建算法的训练与评估。
-1. 植物总数：26个不同形态的植物
-2. 相机位姿获取：所有场景的 sparse/ 文件夹均已通过COLMAP进行了结构复原（Structure-from-Motion, SfM），可直接被3DGS代码读取。
-3. 图片格式：.bmp
+大体积数据已在 `.gitignore` 中忽略，GitHub 上只保留本说明文件。
 
-## 数据集文件结构
-数据集整体存放在`dataGS/`目录下，包含从`plant_001`到`plant_026`共26个独立的植物场景。每个场景的内部结构如下：
+## 多视角图像数据
+
+报告中使用的原始数据是真实场景下采集的单株植物多视角图像：
+
+- 每株植物围绕中心轴线进行 `360°` 采集。
+- 每个场景约 `60-200` 张图像。
+- 原始图像分辨率为 `1080 x 1920`。
+- 背景包含盆栽土壤、塑料布、实验台和自然光照变化等干扰。
+- 使用 COLMAP / SfM 估计相机位姿和稀疏点云。
+- 训练/测试划分沿用 3DGS 默认策略，每隔 8 张图像抽取 1 张作为测试视角。
+
+推荐本地结构如下：
 
 ```text
-dataGS/
-├── plant_001/                  # 001号植物场景
-│   ├── images/                 # 存储多视角拍摄的高清原始照片
+data/dataGS/
+├── plant_001/
+│   ├── images/
 │   │   ├── 0.bmp
 │   │   ├── 1.bmp
 │   │   └── ...
-│   └── sparse/                 # COLMAP 稀疏重建和相机位姿估计结果
-│       └── 0/
-│           ├── cameras.bin     # 相机内参
-│           ├── images.bin      # 相机外参（位姿）
-│           └── points3D.bin    # 稀疏点云
-├── plant_002/                  # 002号植物场景
-│   ├── images/
 │   └── sparse/
+│       └── 0/
+│           ├── cameras.bin
+│           ├── images.bin
+│           └── points3D.bin
+├── plant_002/
 └── ...
-└── plant_026/                  # 026号植物场景
-```
-## 关于预处理
-### 数据集前置要求
-在使用预处理代码`preprocess.py`之前，请先确认你的文件夹满足以下要求：
-```text
-你的植物文件夹/（例如 dataGS/plant_003/）
-└── images/         # 必须包含此文件夹，里面存放你拍摄的所有原始照片（如 .bmp, .jpg, .png）
-```
-### 环境准备
-由于脚本在后台需要调用 `colmap` 命令行工具，运行前请确保服务器已安装 COLMAP
-如果在云服务器（如 AutoDL）环境中，请先在终端运行以下命令一键安装：
-```text
-apt-get update && apt-get install -y colmap
-
-```
-### 运行方法
-1. 将本脚本命名为 preprocess.py 并保存。
-2. 在终端运行:
-   ```text
-   python preprocess.py
-   ```
-3. 运行后，程序会暂停并提示你输入目标植物文件夹的路径。直接在终端中键盘输入或粘贴路径，按下回车即可：
-   ```text
-   请输入植物场景文件夹的路径 (例如 datasets/plant_003): dataGS/plant_003
-   ```
-### preprocess.py说明
-脚本启动后，将严格按照以下 5 个步骤自动执行：
-1. 提取图像特征点：调用 `colmap feature_extractor`，扫描 `images/`文件夹，提取每张照片的数学特征，存入临时数据库。
-2. 进行特征点匹配：调用 `colmap exhaustive_matcher`，通过穷举匹配建立不同视角照片之间的联系。
-3. 三维稀疏重建：调用 `colmap mapper`（SfM 算法），反推相机空间机位，计算镜头畸变参数，生成初始三维骨架。
-4. 整理目录结构：自动将初次重建产生的 `.bin` 核心位姿文件规范化归类到 `sparse/0` 目录。
-5. 去畸变：调用 `colmap image_undistorter`，利用刚刚算出的相机参数将原始照片在数学上去畸变（存入`plant_0xx/images_undistorted`），并将去除畸变的新位姿覆盖写入最终目的地 `sparse/0`。
-### 运行后目录说明
-```text
-plant_003/
-├── images/               # 你的原始图像（存在畸变）
-├── images_undistorted/   # 去畸变后的新图像
-└── sparse/
-    └── 0/                # 对应去畸变图像的相机位姿
-        ├── cameras.bin
-        ├── images.bin
-        └── points3D.bin
 ```
 
-## 数据集使用指南
-### 3DGS标准方法使用
-本数据集的结构完全对齐了3DGS官方标准输入。使用以下命令直接开始训练（以 `plant_001`为例，开始前请将路径改为自己的电脑路径）：
+如果某个场景缺少 `sparse/0/`，可以使用 `reconstruction/scripts/preprocess.py` 调用 COLMAP 生成 3DGS 所需输入。
+
+## 重建与分割实验样本
+
+报告重点使用以下 5 个植物样本进行重建和分割实验：
+
+| 样本 | 结构特点 | 主要难点 |
+| --- | --- | --- |
+| plant_002 | 线状细长叶片 | 大长宽比叶片、薄边界保持 |
+| plant_003 | 低矮簇生植株 | 近景小曲面、密集叶片、局部遮挡 |
+| plant_013 | 穗状器官和高频细节 | 细粒度结构、自遮挡、局部模糊 |
+| plant_016 | 薄壁结构边缘 | 零厚度边界、薄结构断裂控制 |
+| plant_019 | 高度重叠繁茂植株 | 多层遮挡、主体连通性、几何补全 |
+
+## 分割点云数据
+
+分割阶段使用 GOF 等重建方法导出的植物点云，并区分自动裁剪输入与人工清理输入：
+
 ```text
-python train.py -s /path/to/dataGS/plant_001 --model_path output/plant_001
+data/segmentData_seg/       # 自动裁剪得到的植物主体点云
+data/segmentData_hand/      # 人工清理后的 Handcraft 点云
+data/segmentData_labeled/   # CloudCompare 人工标注的叶片实例点云
 ```
 
+报告中 Plant2、Plant3、Plant13、Plant16、Plant19 的人工标注标签数量分别为 `11 / 7 / 27 / 25 / 101`。这些 `.ply` 文件体积较大，且属于实验数据，不应提交到 GitHub。
+
+## 表型实验数据
+
+```text
+data/phenotypeData/
+├── soya.ply
+├── soya-leaf.ply
+└── soya-handcraft.ply
+```
+
+该部分用于大豆样本的表型参数提取实验。报告中对比了自动实例分割结果、人工确认叶片实例和 GT 叶面积，其中 GT 叶片数为 `23`，GT 总叶面积为 `46148.09 mm²`。
+
+## 上传策略
+
+不要提交以下内容：
+
+- 原始多视角图像和 COLMAP 中间结果。
+- `.ply`、`.npy`、模型权重、渲染图、掩码图和聚类特征。
+- `segmentData_*`、`phenotypeData`、各模块 `outputs/`。
+
+如果后续希望提供可运行 demo，建议只放极小规模样例，或在 README 中说明数据下载/生成方式。

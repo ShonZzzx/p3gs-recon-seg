@@ -1,20 +1,56 @@
-# user-defined
+﻿# Project-specific large artifacts
+reports/
+outputs/
+reconstruction/outputs/
+utils/viewers.zip
 
+# Local datasets and generated point clouds
+data/dataGS/
+data/phenotypeData/
+data/segmentData_hand/
+data/segmentData_labeled/
+data/segmentData_seg/
+data/samples/raw/
+data/samples/outputs/
+data/*.ply
+*.ply
+*.npy
+*.npz
 
+# Third-party repositories cloned for local reproduction
+reconstruction/RaDe-GS-main/
+reconstruction/depthsplat-main/
+reconstruction/gaussian-splatting-main/
+reconstruction/2d-gaussian-splatting*/
+reconstruction/gaussian-opacity-fields*/
+reconstruction/Scaffold-GS*/
+reconstruction/LightGaussian*/
+reconstruction/Mip-Splatting*/
 
-# official-defined
-# Byte-compiled / optimized / DLL files
+# Model checkpoints and training products
+checkpoints/
+weights/
+models/
+wandb/
+runs/
+logs/
+*.ckpt
+*.pth
+*.pt
+*.onnx
+
+# Python bytecode and caches
 __pycache__/
-*.py[codz]
+*.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
 
-# C extensions
-*.so
-
-# Distribution / packaging
+# Python packaging
 .Python
 build/
-develop-eggs/
 dist/
 downloads/
 eggs/
@@ -31,138 +67,50 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-.toml
-
-# pdm
-.pdm-python
-.pdm-build/
-
-# pixi
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# Redis
-*.rdb
-*.aof
-*.pid
-
-# RabbitMQ
-mnesia/
-rabbitmq/
-rabbitmq-data/
-
-# ActiveMQ
-activemq-data/
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
+# Virtual environments
 .env
 .envrc
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+__pypackages__/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Jupyter / editor / OS files
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
 
-# Rope project settings
-.ropeproject
+# Test and coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+cover/
 
-# mkdocs documentation
-/site
+# Misc local configs
+local_settings.py
+*.log
+*.tmp
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Local scratch notes
+reconstruction/prompt.txt
 
-# Pyre type checker
-.pyre/
 
-# pytype static type analyzer
-.pytype/
+# Module outputs
+segmentation/outputs/
+phenotyping/outputs/
+reconstruction/source-codes/**/outputs/
+segmentation/source-codes/**/outputs/
 
-# Cython debug symbols
-cython_debug/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Streamlit
-.streamlit/secrets.toml
-
-# Data Source
-data/dataGS/
