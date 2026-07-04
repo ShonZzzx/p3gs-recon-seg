@@ -136,6 +136,7 @@ plant_xxx/
 **Handcraft 人工清理输入**
 
 <img src="docs/assets/segmentation-handcraft-results-preview.png" alt="Handcraft input segmentation comparison" width="720">
+
 ## 重建实验结果
 
 ### 分辨率实验
