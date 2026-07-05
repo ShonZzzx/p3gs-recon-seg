@@ -8,6 +8,9 @@
 reconstruction/
 ├── README.md
 ├── source-codes/       # 论文源码或第三方复现代码
+├── Engineering integration/
+│   ├── roi_fusion/     # ROI 约束、RaDe-GS/GOF 融合和 Gaussian fine-tune 脚本
+│   └── metrics_tools/  # 点云结构指标计算工具
 ├── scripts/            # 本项目重建预处理、PLY 修复和点云指标脚本
 └── outputs/            # 本地输出目录，不上传 GitHub
 ```
@@ -30,6 +33,21 @@ source-codes/
 ```
 
 这些目录对应论文或第三方实现。整理上传时应保留原项目的许可证、引用信息和 README；如果源码或子模块太大，建议改用 Git submodule，或在本 README 中记录官方仓库链接。
+
+## Engineering integration
+
+`Engineering integration/` 存放本项目在重建阶段进行的工程性融合实验代码，不属于论文源码，也不包含训练数据或实验输出。该目录主要服务于报告中的“重建方法的工程性融合实验”，用于验证 ROI 预处理、RaDe-GS 与 GOF 融合、Gaussian 参数级融合、融合后 fine-tune、植物区域加权、植物点云去噪以及无人工标注结构指标统计。
+
+主要子目录如下：
+
+| 路径 | 作用 |
+| --- | --- |
+| `Engineering integration/roi_fusion/` | ROI 数据生成、ROI-RaDe-GS/ROI-GOF 队列训练、B1 融合、保留 Gaussian 参数的融合、融合后 3DGS fine-tune、植物区域加权和去噪。 |
+| `Engineering integration/metrics_tools/` | 计算 PLY 点云结构指标，包括点数、异常点比例、主连通比例、包围盒体积、局部厚度中位数和边缘强度等。 |
+| `Engineering integration/clean_3dgs_ply_rgb.py` | 修复或补充 3DGS PLY 中的 RGB 颜色字段。 |
+| `Engineering integration/txt_xyzrgb_to_ply.py` | 将 `x y z r g b` 文本点云转换为 PLY。 |
+
+其中，`roi_fusion/finetune_from_gaussian_ply.py` 用于从已有 Gaussian PLY 初始化并继续 fine-tune。该流程默认关闭 densification，重点调整已有高斯的颜色、不透明度、尺度、旋转和少量位置参数，用于评估融合高斯点云能否改善 render 图质量。实验结论表明，工程融合和后处理去噪可以带来一定局部改善，但对植物叶片边缘模糊的改善有限，后续仍需要从 3DGS 的植物主体感知损失、边缘加权 densification、薄片高斯约束和结构一致性优化等方向继续改进。
 
 ## 本项目脚本
 
